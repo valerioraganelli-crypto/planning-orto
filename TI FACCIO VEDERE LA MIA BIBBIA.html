@@ -1,0 +1,562 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);font-size:13px;color:var(--color-text-primary)}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+.top-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.filter-btn{font-size:11px;padding:4px 12px;border:0.5px solid var(--color-border-secondary);border-radius:20px;background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.filter-btn.active{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info)}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.leg-sq{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+
+.cal-wrap{overflow-x:auto;margin-bottom:20px}
+table.cal{border-collapse:collapse;width:100%;min-width:640px;table-layout:fixed}
+table.cal th{font-size:10px;font-weight:500;color:var(--color-text-secondary);padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary)}
+table.cal th.crop-h{text-align:left;padding-left:6px;min-width:130px;width:130px}
+table.cal td.crop-cell{font-size:11px;font-weight:500;color:var(--color-text-primary);padding:5px 6px;border-right:0.5px solid var(--color-border-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table.cal td.crop-cell .sub{font-size:10px;font-weight:400;color:var(--color-text-secondary)}
+table.cal td.m{padding:3px 1px;border:0.5px solid var(--color-border-tertiary)}
+table.cal td.m div{height:18px;border-radius:2px}
+table.cal tr.sec-row td{background:var(--color-background-secondary);font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.05em;padding:5px 6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+
+.steps-wrap{display:flex;flex-direction:column;gap:12px}
+.month-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.month-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
+.month-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.month-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.month-tagline{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.chevron{margin-left:auto;color:var(--color-text-tertiary);font-size:12px;transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+.month-body{border-top:0.5px solid var(--color-border-tertiary);padding:12px 14px;display:none}
+.month-body.open{display:block}
+
+.step-section{margin-bottom:10px}
+.step-label{font-size:10px;font-weight:500;letter-spacing:.06em;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase}
+.step-rows{display:flex;flex-direction:column;gap:4px}
+.step-row{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--color-text-primary)}
+.step-dot2{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.buy-row{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:6px 10px;font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.warn{background:#FAEEDA;border-radius:var(--border-radius-md);padding:6px 10px;font-size:11px;color:#633806;line-height:1.5;margin-top:6px}
+</style>
+
+<h2 class="sr-only">Guida mensile all'orto per Roma collinare, aprile 2025 – aprile 2026: calendario colture e step operativi</h2>
+
+<div style="padding:1rem 0">
+
+<div class="top-bar">
+  <button class="filter-btn active" onclick="setF('all',this)">Tutto</button>
+  <button class="filter-btn" onclick="setF('ortaggi',this)">Ortaggi</button>
+  <button class="filter-btn" onclick="setF('frutta',this)">Frutta/alberi</button>
+  <button class="filter-btn" onclick="setF('aromatiche',this)">Aromatiche</button>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>Trapianto piantina acquistata</div>
+  <div class="leg"><div class="leg-sq" style="background:#9FE1CB"></div>Semina diretta in terra</div>
+  <div class="leg"><div class="leg-sq" style="background:#EF9F27"></div>Raccolta</div>
+  <div class="leg"><div class="leg-sq" style="background:#F4C0D1"></div>Potatura / manutenzione alberi</div>
+  <div class="leg"><div class="leg-sq" style="background:#B5D4F4"></div>Irrigazione attiva / concimazione</div>
+  <div class="leg"><div class="leg-sq" style="background:#D3D1C7"></div>Riposo / preparazione terreno</div>
+</div>
+
+<div class="cal-wrap">
+<table class="cal" id="cal-table">
+<thead>
+<tr>
+  <th class="crop-h">Coltura</th>
+  <th>Apr</th><th>Mag</th><th>Giu</th><th>Lug</th><th>Ago</th><th>Set</th>
+  <th>Ott</th><th>Nov</th><th>Dic</th><th>Gen</th><th>Feb</th><th>Mar</th>
+</tr>
+</thead>
+<tbody id="cal-body"></tbody>
+</table>
+</div>
+
+<div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">Step mensili dettagliati — clicca il mese per aprire</div>
+<div class="steps-wrap" id="steps-wrap"></div>
+
+</div>
+
+<script>
+const T='#1D9E75', S='#9FE1CB', R='#EF9F27', M='#F4C0D1', I='#B5D4F4', G='#D3D1C7', _='';
+
+const calData = [
+  {sec:'Filare 1 — Pomodori', cat:'ortaggi', rows:[
+    {n:'Pomodoro cuore di bue', c:[T,I,I,R,R,R,_,_,_,_,_,_]},
+    {n:'Pomodoro ciliegino', c:[T,I,I,R,R,R,_,_,_,_,_,_]},
+    {n:'Pomodoro datterino', c:[T,I,I,R,R,R,_,_,_,_,_,_]},
+  ]},
+  {sec:'Filare 2 — Peperone & Melanzana', cat:'ortaggi', rows:[
+    {n:'Peperone rosso/giallo', c:[T,I,I,R,R,R,_,_,_,_,_,_]},
+    {n:'Melanzana', c:[T,I,I,R,R,R,_,_,_,_,_,_]},
+  ]},
+  {sec:'Filare 3 — Zucchina & Cetriolo', cat:'ortaggi', rows:[
+    {n:'Zucchina (lunga+tonda)', c:[T,R,R,R,R,_,_,_,_,_,_,_]},
+    {n:'Cetriolo', c:[T,R,R,R,_,_,_,_,_,_,_,_]},
+  ]},
+  {sec:'Filare 4 — Legumi', cat:'ortaggi', rows:[
+    {n:'Fagiolino rampicante', c:[S,R,R,R,_,_,_,_,_,_,_,S]},
+    {n:'Fagiolo borlotti', c:[S,_,R,R,_,_,_,_,_,_,_,_]},
+    {n:'Pisello (2ª stagione)', c:[_,_,_,_,_,S,R,_,_,S,R,_]},
+    {n:'Fava (autunnale)', c:[_,_,_,_,_,_,S,_,_,_,R,R]},
+  ]},
+  {sec:'Filare 5 — Aromatiche & Insalata', cat:'ortaggi', rows:[
+    {n:'Lattuga/Insalata', c:[T,R,R,_,_,T,R,R,_,T,R,R]},
+    {n:'Basilico', c:[T,I,R,R,_,_,_,_,_,_,_,_]},
+    {n:'Prezzemolo', c:[T,R,R,R,R,R,R,_,_,T,R,R]},
+  ]},
+  {sec:'Ortaggi invernali (fuori filari)', cat:'ortaggi', rows:[
+    {n:'Broccolo/Cavolo', c:[_,_,_,_,T,T,_,R,R,R,_,_]},
+    {n:'Spinacio', c:[S,R,_,_,_,S,R,R,_,_,R,_]},
+    {n:'Cipolla (bulbi)', c:[_,_,_,_,_,S,_,_,_,_,_,R]},
+    {n:'Aglio (spicchi)', c:[_,_,_,_,_,_,S,_,_,_,_,R]},
+    {n:'Carota', c:[S,_,_,_,_,S,R,R,_,_,_,_]},
+    {n:'Bietola', c:[T,R,R,_,_,T,R,R,R,_,_,_]},
+    {n:'Patata', c:[_,_,_,_,_,_,_,_,_,_,S,R]},
+  ]},
+  {sec:'Aromatiche perenni', cat:'aromatiche', rows:[
+    {n:'Rosmarino', c:[I,I,R,R,I,M,_,_,_,_,M,_]},
+    {n:'Salvia', c:[I,I,R,R,I,M,_,_,_,_,M,_]},
+    {n:'Origano', c:[I,I,R,R,_,M,_,_,_,_,M,_]},
+    {n:'Timo', c:[I,I,R,R,I,M,_,_,_,_,M,_]},
+    {n:'Menta (vaso)', c:[T,R,R,R,_,_,_,_,_,_,_,T]},
+  ]},
+  {sec:'Alberi da frutto (già avviati)', cat:'frutta', rows:[
+    {n:'Prugno (tue piante)', c:[M,_,R,R,_,_,M,_,_,_,M,_]},
+    {n:'Amarena/Ciliegio', c:[M,R,R,_,_,_,M,_,_,_,M,_]},
+    {n:'Olivo (tue piante)', c:[_,_,I,I,I,_,R,R,M,_,_,M]},
+    {n:'Melograno', c:[I,_,_,_,_,_,R,R,M,_,_,_]},
+    {n:'Fico', c:[M,_,R,R,R,_,_,_,_,_,M,_]},
+  ]},
+];
+
+const months = ['Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic','Gen','Feb','Mar'];
+
+let currentFilter = 'all';
+
+function buildCal(filter){
+  const tb = document.getElementById('cal-body');
+  tb.innerHTML='';
+  calData.forEach(sec=>{
+    if(filter!=='all' && sec.cat!==filter) return;
+    const sr=document.createElement('tr');
+    sr.className='sec-row';
+    sr.innerHTML=`<td colspan="13">${sec.sec}</td>`;
+    tb.appendChild(sr);
+    sec.rows.forEach(row=>{
+      const tr=document.createElement('tr');
+      let h=`<td class="crop-cell" title="${row.n}">${row.n}</td>`;
+      row.c.forEach(col=>{
+        h+=`<td class="m"><div style="${col?'background:'+col:''}">&nbsp;</div></td>`;
+      });
+      tr.innerHTML=h;
+      tb.appendChild(tr);
+    });
+  });
+}
+
+const monthData = [
+  {
+    id:'apr', name:'Aprile 2025', tagline:'Il grande trapianto — si parte con i filari',
+    col:'#1D9E75', bg:'#E1F5EE', tcol:'#085041',
+    acquista:[
+      'Piantine: pomodoro cuore di bue (10), ciliegino (12), datterino (8)',
+      'Piantine: peperone rosso (8), peperone giallo (8), melanzana (16)',
+      'Piantine: zucchina lunga (5), zucchina tonda (5), cetriolo (10)',
+      'Piantine: lattuga (15 miste), bietola (10), prezzemolo (5)',
+      'Piantine aromatiche in vaso: basilico (5), timo (3), origano (3)',
+      'Semi: fagiolino rampicante (1 busta), spinacio (1 busta), carota (1 busta)',
+      'Acquisto gocciolatori, teli pacciamanti se non ancora fatto',
+    ],
+    terreno:[
+      'Lavora il terreno in profondità (30 cm) con vanga o motozappa',
+      'Distribuisci 3-4 kg/m² di stallatico maturo o compost prima del telo',
+      'Stendi i teli pacciamanti sui filari e assicurali ai bordi con terra o fermi metallici',
+      'Perfora il telo con punzonatore ogni 50 cm (pomodori), ogni 40 cm (peperone/melanzana), ogni 80 cm (zucchine)',
+      'Posa i tubi gocciolatori sotto il telo PRIMA di piantare — è molto più facile',
+      'Testa l\'impianto: ogni gocciolatore deve uscire acqua, verifica pressione',
+    ],
+    coltiva:[
+      'Trapianta pomodori, peperoni, melanzane, zucchine, cetrioli nella 2ª metà di aprile (dopo il 15) — rischio gelate ridotto ma ancora presente',
+      'Installa tutori/reti per pomodori subito dopo il trapianto (non aspettare che crescano)',
+      'Semina direttamente fagiolini e spinaci fuori dai filari pacciamati',
+      'Trapianta lattuga e bietola nel filare 5',
+      'Metti le aromatiche perenni in vaso o in bordura — non sotto il telo',
+      'Pianta i bulbi di cipolla e semina carote direttamente in terra',
+    ],
+    manutenzione:[
+      'Concima prugni e amarene con stallatico maturo — sono in post-fioritura',
+      'Controlla i ciliegi per monilinia (funghi su fiori secchi): rimuovi i rami colpiti',
+      'Pota il fico solo se non l\'hai fatto a febbraio (entro fine aprile)',
+      'Concima il melograno con azoto (concime granulare 12-5-10)',
+      'Trattamento preventivo afidi: installa trappole cromotrofiche gialle',
+    ],
+    warn:'Attenzione alle brinate tardive fino al 10-15 aprile. Tieni pronti dei tessuti non tessuto (TNT) per coprire i trapianti nelle notti più fredde.',
+  },
+  {
+    id:'mag', name:'Maggio 2025', tagline:'Crescita esplosiva — irrigazione e concimazione',
+    col:'#1D9E75', bg:'#E1F5EE', tcol:'#085041',
+    acquista:[
+      'Concime liquido per fertirrigazione (es. Confidor o biologico Biocanna Vega)',
+      'Pali e rete tutore per pomodori se non già acquistati',
+      'Trappole per Drosophila suzukii (per amarene/ciliegi)',
+      'Zolfo bagnabile per prevenzione oidio',
+    ],
+    terreno:[
+      'Controlla i teli pacciamanti: se si sono sollevati, fissali con più terra ai bordi',
+      'Verifica che ogni gocciolatore sia centrato sul foro e sulla piantina',
+      'Inizia irrigazione automatica: 30 min/giorno alle 6:00 del mattino',
+    ],
+    coltiva:[
+      'Completa il trapianto di qualunque piantina rimasta (entro il 10 maggio)',
+      'Lega i pomodori alla rete o al tutore quando raggiungono 30-40 cm',
+      'Elimina i germogli laterali (succhioni) dei pomodori ogni settimana — solo 1 stelo principale',
+      'Le zucchine inizieranno a produrre: raccogli ogni 2-3 giorni per tenere la pianta produttiva',
+      'Risemina spinaci e lattuga per la 2ª raccolta',
+      'Tieni pulito il filare 4: appendi la rete per i fagiolini rampicanti',
+    ],
+    manutenzione:[
+      'Prima concimazione fogliare dei pomodori con prodotto a base di calcio (evita marciume apicale)',
+      'Trattamento afidi con sapone di potassio se li vedi sulle cime — agisci subito',
+      'Monitora olivi: se vedi mosca olearia inizia trattamenti con caolino (biologico)',
+      'Prugni e amarene: se vedi frutto allegato, dirada i frutti troppo fitti (lascia 5-6 cm tra uno e l\'altro)',
+    ],
+    warn:'Maggio è il mese della peronospora: dopo ogni pioggia tratta pomodori con poltiglia bordolese (4 g/L). Non aspettare i sintomi.',
+  },
+  {
+    id:'giu', name:'Giugno 2025', tagline:'Inizio raccolta — massima cura idrica',
+    col:'#EF9F27', bg:'#FAEEDA', tcol:'#633806',
+    acquista:[
+      'Poltiglia bordolese (scorta per tutta l\'estate)',
+      'Bacillus thuringiensis (Bt) — insetticida biologico per bruchi/nottue',
+      'Reti anti-insetto per proteggere le colture se hai problemi di cimici',
+    ],
+    terreno:[
+      'Aumenta irrigazione: 45 min/giorno in caso di caldo secco',
+      'Se il telo pacciamante è nero puro e il sole è molto forte, considera una pacciamatura di paglia sopra le zucchine (non amano il caldo eccessivo alle radici)',
+    ],
+    coltiva:[
+      'Raccogli zucchine quotidianamente — ogni frutto lasciato troppo diventa un "zuccone" e ferma la produzione',
+      'Primi pomodori ciliegini maturi: raccogli a grappolo',
+      'Raccolta cetrioli appena raggiungono 15-20 cm',
+      'Raccogli basilico regolarmente eliminando le cime floreali per prolungare la vita',
+      'Prepara un angolo del terreno fuori dai filari per i cavoli/broccoli (trapianto ad agosto)',
+    ],
+    manutenzione:[
+      'Raccolta amarene: di solito pronte tra fine maggio e fine giugno a seconda della varietà',
+      'Dopo raccolta amarene: pota i rami che hanno fruttificato di 1/3',
+      'Olivi: irrigazione di soccorso se siccità prolungata (almeno una volta ogni 2 settimane)',
+      'Fico: prima raccolta dei fioroni (frutti precoci) in giugno',
+      'Trattamento preventivo oidio su zucchine con zolfo bagnabile',
+    ],
+    warn:'Cimice asiatica: se la vedi, raccogli i frutti appena maturi. Le trappole a feromoni sono utili ma non risolutive. Evita di lasciare frutti rotti sulla pianta.',
+  },
+  {
+    id:'lug', name:'Luglio 2025', tagline:'Piena produzione — raccolto intensivo',
+    col:'#EF9F27', bg:'#FAEEDA', tcol:'#633806',
+    acquista:[
+      'Barattoli/vasi per conserve (pelati, passata) se vuoi trasformare il surplus',
+      'Zucchero per confetture di prugne',
+      'Eventuale ombreggiatura (rete ombreggiante 30%) se caldo eccessivo',
+    ],
+    terreno:[
+      'Irrigazione: 60 min/giorno se temperature >35°C, divisa in 2 turni (alba + primo pomeriggio)',
+      'Controlla che il filtro del sistema a goccia non sia intasato: puliscilo ogni 2 settimane',
+    ],
+    coltiva:[
+      'Raccolta intensa pomodori cuore di bue e datterino',
+      'Continua raccolta peperoni: verdi già da luglio, colorati da agosto',
+      'Melanzane: raccogli quando la buccia è lucida — se diventa opaca è troppo matura',
+      'Fagioli e fagiolini: raccolta continua ogni 3 giorni',
+      'Togli le piante di spinacio che sono andate a seme — prepara il posto per la semina autunnale',
+      'Semina direttamente (fuori telo) carote e ravanelli per raccolta autunnale',
+    ],
+    manutenzione:[
+      'Raccolta prugne: di solito luglio-agosto secondo la varietà (damasco, regina claudia…)',
+      'Conserva le prugne in eccesso: confettura o essiccazione',
+      'Olivi: se noti fori nei frutti è mosca olearia — trattamento con spinosad o caolino',
+      'Melograno: i fiori si trasformano in frutto, non irrigare in eccesso (favorisce spaccatura)',
+    ],
+    warn:'Con il caldo il marciume apicale del pomodoro è più frequente. Causa: stress idrico irregolare. Soluzione: irrigazione costante, mai a singhiozzo.',
+  },
+  {
+    id:'ago', name:'Agosto 2025', tagline:'Fine estate — semina autunnale, rinnovare i filari',
+    col:'#EF9F27', bg:'#FAEEDA', tcol:'#633806',
+    acquista:[
+      'Piantine: broccolo, cavolfiore, cavolo cappuccio (per trapianto agosto)',
+      'Semi: pisello, spinacio, lattuga autunnale, radicchio',
+      'Concime organico (stallatico pellettato) per rinfrescare il terreno',
+      'Nuovo telo pacciamante se il vecchio è deteriorato',
+    ],
+    terreno:[
+      'Dopo aver rimosso le piante estive esaurite (zucchine finite, cetrioli), rimuovi il telo vecchio',
+      'Aggiunge stallatico o compost al terreno liberato (3 kg/m²)',
+      'Stendi telo nuovo per le colture autunnali',
+      'Fai i fori per il trapianto dei cavoli (60 cm di distanza)',
+    ],
+    coltiva:[
+      'Trapianta broccoli, cavolfiori e cavoli nella 2ª metà di agosto',
+      'Semina piselli e spinaci direttamente in terra (meglio aspettare fine agosto per il caldo)',
+      'Ritrapianta lattuga nel filare 5 per raccolta autunnale',
+      'I pomodori producono ancora: raccogli tutto, anche i meno maturi li puoi fare verdi sott\'olio',
+    ],
+    manutenzione:[
+      'Potatura verde degli olivi: rimuovi succhioni interni per aerare la chioma',
+      'Melograno: iniziano a colorarsi, riduci l\'irrigazione per evitare la spaccatura dei frutti',
+      'Inizia a raccogliere le erbe aromatiche per essiccazione (origano, timo, salvia)',
+    ],
+    warn:'Non smettere di irrigare fino a che le piante estive sono in produzione. L\'errore più comune è abbandonarle a fine agosto e perdere settimane di raccolta.',
+  },
+  {
+    id:'set', name:'Settembre 2025', tagline:'Transizione — due stagioni in contemporanea',
+    col:'#1D9E75', bg:'#E1F5EE', tcol:'#085041',
+    acquista:[
+      'Piantine: insalata invernale, cicoria, radicchio, bietola',
+      'Bulbi di aglio (per piantare ottobre)',
+      'Olio di neem per trattamenti autunnali',
+    ],
+    terreno:[
+      'Rimuovi i pomodori e peperoni rimasti (le piante esaurite) e smaltisci in compost',
+      'Prepara i letti per le semine autunnali con vangatura leggera e compost',
+      'Riduci l\'irrigazione automatica a 20-30 min/giorno con le temperature in calo',
+    ],
+    coltiva:[
+      'Trapianta bietola, cicoria e radicchio nei spazi liberati',
+      'Semina piselli e fave direttamente in terra (fine settembre)',
+      'Raccogli gli ultimi peperoni e melanzane rimasti',
+      'Raccolta continua broccoli (le cimette laterali ricrescono se non tagli il gambo principale)',
+      'Ripianta prezzemolo e erba cipollina per l\'inverno',
+    ],
+    manutenzione:[
+      'Raccolta melograni: pronti quando la buccia è coriacea e fa il suono sordo picchiettandola',
+      'Olivi: inizio pre-raccolta — osserva l\'invaiatura (cambio colore da verde a violaceo)',
+      'Trattamento rame su alberi da frutto prima delle piogge autunnali',
+      'Prepara il compost con i residui estivi: strati alternati verde/secco',
+    ],
+    warn:'Settembre è mese di piogge improvvise dopo la siccità estiva: la peronospora può colpire ancora. Tratta con rame dopo ogni pioggia abbondante.',
+  },
+  {
+    id:'ott', name:'Ottobre 2025', tagline:'Raccolta olivi — orto autunnale in piena attività',
+    col:'#EF9F27', bg:'#FAEEDA', tcol:'#633806',
+    acquista:[
+      'Olio bianco emulsionabile (trattamento invernale alberi)',
+      'Bulbi di cipolla per semina',
+      'Stallatico maturo per concimazione autunnale',
+      'Reti da raccolta olive se non le hai',
+    ],
+    terreno:[
+      'Concima tutti i filari autunnali con stallatico pellettato (50 g/m²)',
+      'Mantieni l\'irrigazione attiva per le colture autunnali: 15-20 min ogni 2 giorni',
+    ],
+    coltiva:[
+      'Raccogli cavoli e cavolfiori quando la testa è compatta e soda',
+      'Raccolta continua broccoli, spinaci, lattuga',
+      'Pianta gli spicchi di aglio (5 cm di profondità, punta verso l\'alto)',
+      'Semina fave nella 2ª metà di ottobre',
+      'I piselli seminati a settembre iniziano a crescere: sostegni se necessario',
+    ],
+    manutenzione:[
+      'RACCOLTA OLIVE: ottobre-novembre è il momento chiave. Raccogli con reti a terra + rastrelli',
+      'Porta le olive al frantoio entro 48h dalla raccolta per olio di qualità',
+      'Dopo la raccolta olive: pota gli olivi (rimuovi i rami vecchi, dirada)',
+      'Trattamento olio bianco su prugni e ciliegi per le uova di cocciniglia',
+      'Pota il fico dopo la caduta delle foglie',
+    ],
+    warn:'Le olive si raccolgono quando il 50% è in invaiatura (metà verde, metà scura). Non aspettare che siano tutte nere — l\'olio sarà meno aromatico e più acido.',
+  },
+  {
+    id:'nov', name:'Novembre 2025', tagline:'Rallentamento — protezione e preparazione invernale',
+    col:'#B5D4F4', bg:'#E6F1FB', tcol:'#0C447C',
+    acquista:[
+      'TNT (tessuto non tessuto) per coprire le colture nelle notti gelide',
+      'Concime a base di potassio per rinforzare le radici invernali',
+    ],
+    terreno:[
+      'Libera i filari dai resti estivi rimasti e incorpora compost fresco',
+      'Riduci irrigazione automatica: 10-15 min ogni 3 giorni solo nelle giornate asciutte',
+      'Nelle giornate senza pioggia, verifica che il terreno dei filari attivi non sia troppo secco',
+    ],
+    coltiva:[
+      'Raccogli spinaci, lattuga e cicoria in continuo',
+      'I broccoli producono cimette laterali per mesi: raccoglile spesso',
+      'Fave e piselli crescono lentamente — non preoccuparti, vanno bene',
+      'Aglio e cipolle stanno germogliando: nessun intervento necessario',
+    ],
+    manutenzione:[
+      'Potatura alberi da frutto: prugni, ciliegi, pechi (se hai aggiunto altri)',
+      'Distribuisci stallatico maturo attorno agli alberi da frutto (non a contatto con il tronco)',
+      'Pulisci e riponi i tutori delle piante estive, stai le reti essiccate',
+      'Svuota e pulisci i filtri dell\'impianto a goccia — controlla guarnizioni',
+    ],
+    warn:'Le prime gelate arrivano tipicamente a novembre a 300-350 m s.l.m. Copri le colture più sensibili (lattuga, basilico residuo) con TNT nelle notti sotto i 3°C.',
+  },
+  {
+    id:'dic', name:'Dicembre 2025', tagline:'Riposo attivo — orto invernale e pianificazione 2026',
+    col:'#D3D1C7', bg:'#F1EFE8', tcol:'#2C2C2A',
+    acquista:[
+      'Cataloghi sementi per il 2026 (Arcoiris, Bavicchi, La Semiorto — varietà antiche)',
+      'Eventuale serra/tunnel per anticipare le semine a febbraio',
+      'Compost o letame per la preparazione primaverile',
+    ],
+    terreno:[
+      'Lascia riposare i filari vuoti: copri con compost grezzo e lascia che il gelo lavori il terreno',
+      'Non lavorare il terreno bagnato: aspetta che si asciughi',
+      'Irrigazione solo in caso di siccità prolungata (raro a dicembre)',
+    ],
+    coltiva:[
+      'Raccolta spinaci, lattuga, cicoria quando disponibili',
+      'Broccoli e cavoli producono tutto l\'inverno: raccolta a richiesta',
+      'Fave e piselli dormono: ok così',
+    ],
+    manutenzione:[
+      'Potatura olivi (se non fatta a ottobre)',
+      'Trattamento invernale alberi con olio bianco contro uova di cocciniglia e acari',
+      'Pianifica la rotazione 2026: disegna su carta dove metti le diverse colture',
+      'Ordina le piantine online per aprile (alcuni vivai esauriscono le varietà migliori)',
+    ],
+    warn:'Dicembre è il mese della pianificazione. Tieni un quaderno dell\'orto: annota cosa ha prodotto di più, cosa ha avuto problemi, cosa vuoi cambiare nel 2026.',
+  },
+  {
+    id:'gen', name:'Gennaio 2026', tagline:'Preparazione silente — si piantano fave e piselli',
+    col:'#D3D1C7', bg:'#F1EFE8', tcol:'#2C2C2A',
+    acquista:[
+      'Semi o piantine di fava (se non seminato a ottobre)',
+      'Semi di pisello a grana rugosa (più resistenti al freddo)',
+      'Zolfo e rame per i trattamenti primaverili imminenti',
+    ],
+    terreno:[
+      'Se il terreno lo permette (non gelato e non saturo d\'acqua) vangalo leggermente',
+      'Aggiungi ammendante calcareo se il pH è acido (test economico da garden center)',
+    ],
+    coltiva:[
+      'Semina piselli e fave direttamente in terra nelle giornate miti (>5°C)',
+      'Continua raccolta spinaci, lattuga, broccoli, cavoli',
+      'Aglio e cipolle crescono lentamente: nessun intervento, solo monitoraggio',
+    ],
+    manutenzione:[
+      'Potatura prugni e amarene se non ancora fatto (entro febbraio)',
+      'Potatura olivi se rimandati',
+      'Concimazione di fondo con stallatico maturo attorno agli alberi da frutto',
+      'Trattamento preventivo con rame sugli alberi da frutto (poltiglia bordolese in dose invernale)',
+    ],
+    warn:'Non avere fretta: le piante invernali crescono lentamente ma sono robuste. Il grande errore è trapiantare troppo presto per anticipare la stagione e perdere tutto per una gelata tardiva.',
+  },
+  {
+    id:'feb', name:'Febbraio 2026', tagline:'Si sveglia tutto — acquista le prime piantine',
+    col:'#9FE1CB', bg:'#E1F5EE', tcol:'#085041',
+    acquista:[
+      'Piantine precoci: lattuga, cipollotto, rucola, spinacio',
+      'Piantine di patata (varietà precoce: Spunta, Nicola)',
+      'Trappole cromotrofiche gialle per afidi primaverili',
+      'Poltiglia bordolese per trattamenti fioriture',
+    ],
+    terreno:[
+      'Lavora i filari che riposeranno: vanga profonda + compost',
+      'Prepara il telo per il filare delle patate (o coltivale senza telo in terra libera)',
+      'Controlla impianto irrigazione: riattiva e testa ogni linea',
+    ],
+    coltiva:[
+      'Pianta le patate (fine febbraio se le notti sono >2°C)',
+      'Trapianta lattuga, rucola e cipollotti nei filari liberi',
+      'I piselli e le fave riprendono vigore: installa sostegni',
+      'Raccogli gli ultimi cavoli e broccoli invernali',
+    ],
+    manutenzione:[
+      'Potatura di ritorno su prugni e amarene (ultima possibilità prima della fioritura)',
+      'Trattamento rame su tutti gli alberi da frutto prima della fioritura',
+      'Concima il melograno con azoto per stimolare la ripresa vegetativa',
+      'Pulizia generale dell\'orto: rimuovi residui vegetali, rinnova il compost',
+    ],
+    warn:'Febbraio è il mese più insidioso: giornate calde fanno esplodere le gemme, poi arriva una gelata e brucia tutto. Non trapiantare piante sensibili prima del 15 febbraio.',
+  },
+  {
+    id:'mar26', name:'Marzo 2026', tagline:'Tutto pronto per ripartire — si ricomincia come ora',
+    col:'#1D9E75', bg:'#E1F5EE', tcol:'#085041',
+    acquista:[
+      'Organizza gli ordini piantine per aprile (stessa lista dell\'anno scorso + variazioni)',
+      'Nuovi teli pacciamanti se quelli vecchi non reggono una 2ª stagione',
+      'Verifica scorte: tutori, rete, gocciolatori, raccordi',
+      'Stallatico maturo per la concimazione pre-impianto',
+    ],
+    terreno:[
+      'Prepara i filari: vanga profonda, concima con stallatico, aspetta 10 giorni prima di stendere il telo',
+      'Stendi i teli nella 2ª metà di marzo',
+      'Perfora i fori per le piantine di aprile',
+      'Riattiva e testa l\'impianto a goccia completo',
+    ],
+    coltiva:[
+      'Semina fagiolini, carote, ravanelli direttamente in terra',
+      'Trapianta le prime piantine resistenti (lattuga, bietola, cipollotto)',
+      'Raccogli gli ultimi spinaci e insalate invernali prima che vadano a seme',
+      'Piselli e fave in piena produzione: raccolta quotidiana',
+    ],
+    manutenzione:[
+      'Potatura verde leggera di rosmarino, salvia, timo dopo il freddo invernale',
+      'Primo trattamento preventivo afidi con sapone di potassio',
+      'Olivi: osserva la ripresa vegetativa — concima con azoto',
+      'Controlla che il sistema irrigazione non abbia perdite dopo l\'inverno',
+    ],
+    warn:'Sei di nuovo al punto di partenza — ma con un anno di esperienza. Ogni stagione insegna qualcosa: affidati al quaderno dell\'orto che hai tenuto da dicembre.',
+  },
+];
+
+function buildSteps(){
+  const wrap = document.getElementById('steps-wrap');
+  wrap.innerHTML='';
+  monthData.forEach((m,i)=>{
+    const card = document.createElement('div');
+    card.className='month-card';
+    const isFirst = i===0;
+    card.innerHTML=`
+    <div class="month-hdr" onclick="toggleMonth(this)">
+      <div class="month-dot" style="background:${m.col};color:#fff">${m.name.slice(0,3)}</div>
+      <div>
+        <div class="month-name">${m.name}</div>
+        <div class="month-tagline">${m.tagline}</div>
+      </div>
+      <span class="chevron${isFirst?' open':''}">▼</span>
+    </div>
+    <div class="month-body${isFirst?' open':''}">
+      <div class="step-section">
+        <div class="step-label">Cosa acquistare</div>
+        <div class="step-rows">${m.acquista.map(s=>`<div class="buy-row">+ ${s}</div>`).join('')}</div>
+      </div>
+      <div class="step-section" style="margin-top:10px">
+        <div class="step-label">Preparazione terreno & impianto</div>
+        <div class="step-rows">${m.terreno.map(s=>`<div class="step-row"><div class="step-dot2" style="background:#1D9E75"></div><span>${s}</span></div>`).join('')}</div>
+      </div>
+      <div class="step-section" style="margin-top:10px">
+        <div class="step-label">Coltivazione & raccolta</div>
+        <div class="step-rows">${m.coltiva.map(s=>`<div class="step-row"><div class="step-dot2" style="background:#EF9F27"></div><span>${s}</span></div>`).join('')}</div>
+      </div>
+      <div class="step-section" style="margin-top:10px">
+        <div class="step-label">Manutenzione alberi & parassiti</div>
+        <div class="step-rows">${m.manutenzione.map(s=>`<div class="step-row"><div class="step-dot2" style="background:#F4C0D1"></div><span>${s}</span></div>`).join('')}</div>
+      </div>
+      ${m.warn?`<div class="warn">⚠ ${m.warn}</div>`:''}
+    </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function toggleMonth(hdr){
+  const body = hdr.nextElementSibling;
+  const chev = hdr.querySelector('.chevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+function setF(f, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter=f;
+  buildCal(f);
+}
+
+buildCal('all');
+buildSteps();
+</script>
